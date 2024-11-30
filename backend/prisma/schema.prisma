@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  name            String
+  email           String    @unique
+  password        String
+  height          Float?
+  weight          Float?
+  bodyMeasurements BodyMeasurement?
+  avatar          Avatar?
+  wishlist        Wishlist[]
+  cart            CartItem[]
+  orders          Order[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  Review Review[]
+}
+
+model BodyMeasurement {
+  id          Int     @id @default(autoincrement())
+  userId      Int     @unique
+  chest       Float
+  waist       Float
+  hips        Float
+  inseam      Float
+  shoulders   Float
+  user        User    @relation(fields: [userId], references: [id])
+}
+
+model Avatar {
+  id          Int     @id @default(autoincrement())
+  userId      Int     @unique
+  data        Json    // Store 3D model data or configuration as JSON
+  user        User    @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  category    String
+  images      String[]  // Store URLs to product images
+  sizes       String[]  // Available sizes (e.g., ["S", "M", "L"])
+  colors      String[]  // Available colors
+  tryOnModel  Json?     // Optional: Data for try-on functionality
+  reviews     Review[]
+  cartItems   CartItem[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  Wishlist Wishlist[]
+}
+
+model CartItem {
+  id          Int     @id @default(autoincrement())
+  userId      Int
+  productId   Int
+  quantity    Int
+  size        String
+  color       String
+  user        User    @relation(fields: [userId], references: [id])
+  product     Product @relation(fields: [productId], references: [id])
+}
+
+model Wishlist {
+  id          Int     @id @default(autoincrement())
+  userId      Int
+  productId   Int
+  user        User    @relation(fields: [userId], references: [id])
+  product     Product @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  items       Json      // Array of ordered items with details
+  totalPrice  Float
+  status      String    @default("Pending") // Pending, Shipped, Delivered, Cancelled
+  paymentInfo Json?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Review {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  userId      Int
+  rating      Int       // 1 to 5
+  comment     String?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+}
