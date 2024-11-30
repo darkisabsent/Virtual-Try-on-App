@@ -1,0 +1,4 @@
+item_id,user_id,rating,comments
+1234,user_001,4,"Good fit, but color mismatch."
+1234,user_002,5,"Perfect fit, loved the color!"
+5678,user_003,3,"Fit is fine, but material feels cheap."
